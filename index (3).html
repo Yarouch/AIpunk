@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investiční AI punk s Jardou</title>
+<style>
+  :root{
+    --bg:#0a0a0f;
+    --bg2:#12121c;
+    --card:#16161f;
+    --ink:#f4f4f8;
+    --muted:#8a8a9e;
+    --neon:#00ffc2;
+    --neon-dim:#00b88c;
+    --pink:#ff2d8e;
+    --yellow:#ffe600;
+    --line:#26263a;
+    --ok:#00ffc2;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Courier New',ui-monospace,monospace;
+    line-height:1.5;
+    min-height:100vh;
+    background-image:
+      radial-gradient(circle at 12% 8%, rgba(255,45,142,.12), transparent 40%),
+      radial-gradient(circle at 88% 30%, rgba(0,255,194,.10), transparent 42%),
+      linear-gradient(rgba(255,255,255,.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.015) 1px, transparent 1px);
+    background-size:auto,auto,42px 42px,42px 42px;
+    padding-bottom:64px;
+  }
+  .wrap{max-width:780px;margin:0 auto;padding:0 18px;}
+
+  /* HEADER */
+  header{padding:46px 0 26px;text-align:center;position:relative;}
+  .kicker{
+    display:inline-block;font-size:12px;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--neon);border:1px solid var(--neon-dim);border-radius:999px;
+    padding:6px 16px;margin-bottom:22px;
+    box-shadow:0 0 18px rgba(0,255,194,.25);
+  }
+  h1{
+    font-size:clamp(34px,9vw,62px);line-height:.96;font-weight:900;letter-spacing:-.02em;
+    text-transform:uppercase;font-family:'Arial Black',Helvetica,sans-serif;
+  }
+  h1 .a{color:var(--ink);}
+  h1 .b{color:var(--pink);text-shadow:0 0 24px rgba(255,45,142,.5);}
+  h1 .c{color:var(--neon);text-shadow:0 0 24px rgba(0,255,194,.5);}
+  .sub{margin-top:16px;color:var(--muted);font-size:15px;}
+  .sub b{color:var(--yellow);}
+  .meta{
+    margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;
+    font-size:12px;letter-spacing:.08em;
+  }
+  .pill{background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:6px 14px;color:var(--muted);}
+  .pill b{color:var(--neon);}
+
+  /* PROGRESS */
+  .progress{
+    margin:28px 0 8px;background:var(--bg2);border:1px solid var(--line);
+    border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:14px;
+  }
+  .progress .bartrack{flex:1;height:10px;background:#0c0c14;border-radius:999px;overflow:hidden;border:1px solid var(--line);}
+  .progress .barfill{height:100%;width:0;background:linear-gradient(90deg,var(--pink),var(--neon));transition:width .4s ease;border-radius:999px;}
+  .progress .ptxt{font-size:13px;color:var(--muted);white-space:nowrap;}
+  .progress .ptxt b{color:var(--neon);}
+
+  /* CARDS */
+  .cards{margin-top:18px;display:flex;flex-direction:column;gap:16px;}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;
+    transition:border-color .2s, transform .15s, box-shadow .2s;
+  }
+  .card.done{border-color:var(--neon-dim);}
+  .card-head{
+    display:flex;align-items:center;gap:16px;padding:20px;cursor:pointer;user-select:none;
+  }
+  .card-head:active{transform:scale(.995);}
+  .num{
+    flex:none;width:52px;height:52px;border-radius:14px;display:grid;place-items:center;
+    font-size:24px;font-weight:900;font-family:'Arial Black',sans-serif;
+    background:#0c0c14;border:1px solid var(--line);color:var(--neon);
+    box-shadow:inset 0 0 18px rgba(0,255,194,.12);
+  }
+  .card:nth-child(2) .num{color:var(--pink);box-shadow:inset 0 0 18px rgba(255,45,142,.14);}
+  .card:nth-child(3) .num{color:var(--yellow);box-shadow:inset 0 0 18px rgba(255,230,0,.12);}
+  .card:nth-child(4) .num{color:#7ca8ff;box-shadow:inset 0 0 18px rgba(124,168,255,.14);}
+  .ttl{flex:1;}
+  .ttl h2{font-size:17px;font-weight:800;letter-spacing:.01em;font-family:'Arial Black',sans-serif;}
+  .ttl .icon{font-size:15px;margin-right:6px;}
+  .ttl p{font-size:13px;color:var(--muted);margin-top:3px;}
+  .ttl .time{font-size:11px;color:var(--neon-dim);letter-spacing:.1em;text-transform:uppercase;margin-top:6px;display:inline-block;}
+  .chev{flex:none;color:var(--muted);font-size:20px;transition:transform .25s;}
+  .card.open .chev{transform:rotate(90deg);}
+
+  .check{
+    flex:none;width:30px;height:30px;border-radius:8px;border:2px solid var(--line);
+    background:#0c0c14;display:grid;place-items:center;cursor:pointer;color:transparent;
+    font-size:16px;font-weight:900;transition:.2s;
+  }
+  .check:hover{border-color:var(--muted);}
+  .card.done .check{background:var(--neon);border-color:var(--neon);color:#05140f;box-shadow:0 0 14px rgba(0,255,194,.5);}
+
+  /* BODY */
+  .card-body{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+  .card.open .card-body{max-height:6000px;}
+  .body-inner{padding:0 20px 22px;border-top:1px solid var(--line);}
+  .context{
+    background:#0c0c14;border-left:3px solid var(--pink);border-radius:0 10px 10px 0;
+    padding:14px 16px;margin:18px 0;font-size:13.5px;color:#c9c9d6;
+  }
+  .context b{color:var(--yellow);}
+  .label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px;}
+
+  .promptbox{
+    position:relative;background:#08080d;border:1px solid var(--line);border-radius:12px;
+    padding:16px;font-size:13px;line-height:1.6;white-space:pre-wrap;word-break:break-word;
+    max-height:300px;overflow:auto;color:#d6d6e2;
+  }
+  .promptbox::-webkit-scrollbar{width:8px;}
+  .promptbox::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px;}
+
+  .copybtn{
+    margin-top:14px;width:100%;padding:18px;border:none;border-radius:12px;cursor:pointer;
+    font-family:inherit;font-size:16px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;
+    background:linear-gradient(90deg,var(--pink),var(--neon));color:#05140f;
+    transition:transform .1s, box-shadow .2s, filter .2s;
+    box-shadow:0 0 22px rgba(0,255,194,.28);
+  }
+  .copybtn:active{transform:scale(.98);}
+  .copybtn.copied{background:var(--neon);filter:none;}
+  .hint{margin-top:10px;font-size:12px;color:var(--muted);text-align:center;}
+  .hint b{color:var(--neon);}
+
+  /* FOOTER */
+  footer{margin-top:46px;text-align:center;font-size:12px;color:var(--muted);line-height:1.7;}
+  footer .warn{color:var(--pink);font-weight:700;}
+  .sig{margin-top:14px;color:var(--neon);letter-spacing:.2em;text-transform:uppercase;font-size:11px;}
+
+  @media(max-width:480px){
+    .card-head{padding:16px;gap:12px;}
+    .num{width:46px;height:46px;font-size:20px;}
+    .ttl h2{font-size:15px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="kicker">Praktický workshop · 60 min</span>
+    <h1><span class="a">Investiční</span><br><span class="b">AI punk</span> <span class="c">s Jardou</span></h1>
+    <p class="sub">4 prompty, které si vyzkoušíš <b>na vlastním PC / iPadu</b>. Klikni na krok → zkopíruj prompt → vlož do AI.</p>
+    <div class="meta">
+      <span class="pill"><b>1</b> AI bankéř</span>
+      <span class="pill"><b>2</b> Dluhopis</span>
+      <span class="pill"><b>3</b> Akcie</span>
+      <span class="pill"><b>4</b> Podcast</span>
+    </div>
+  </header>
+
+  <div class="progress">
+    <div class="bartrack"><div class="barfill" id="barfill"></div></div>
+    <span class="ptxt"><b id="pcount">0</b>/4 hotovo</span>
+  </div>
+
+  <div class="cards" id="cards">
+
+    <!-- KARTA 1 -->
+    <div class="card" data-id="1">
+      <div class="card-head">
+        <div class="num">1</div>
+        <div class="ttl">
+          <h2><span class="icon">💼</span>Analýza portfolia</h2>
+          <p>AI bankéř ti rozebere tvé vlastní investice z Přehledu produktů.</p>
+          <span class="time">⏱ ~10 min · AI bankéř</span>
+        </div>
+        <div class="check" title="Označ jako hotové">✓</div>
+        <div class="chev">›</div>
+      </div>
+      <div class="card-body"><div class="body-inner">
+        <div class="context"><b>Kde:</b> AI bankéř. <b>Co potřebuješ:</b> mít po ruce Přehled produktů (export / screenshot / PDF). Vlož ho spolu s promptem.</div>
+        <div class="label">Prompt ke zkopírování</div>
+        <div class="promptbox">Role: 
+Jsi odborník na kapitálové trhy a dlouhodobé zhodnocování úspor prostřednictvím modelových portfolií. Přemýšlíš v logice široké diverzifikace mezi úrokovou, akciovou a alternativní složkou. Při hodnocení portfolia zohledňuješ znalosti a zkušenosti klienta, jeho investiční cíle, investiční horizont a toleranci k riziku a kolísání hodnoty investice. 
+
+Úkol: 
+Na základě přílohy „Přehled stávajících produktů.pdf“ proveď komplexní analýzu klientského portfolia. Zaměř se zejména na:
+
+- celkovou strukturu portfolia,  
+- míru diverzifikace,  
+- případné koncentrace do jednoho typu aktiv, regionu, sektoru nebo měny,  
+- vyváženost mezi růstovou a konzervativní složkou,  
+- přiměřenost portfolia vzhledem k dlouhodobému investování,  
+- případná slabá místa nebo chybějící složky.  
+
+Postup práce s daty (důležité):
+1. Důkladně projdi CELÝ dokument (všechny stránky).
+2. Zahrň všechny majetkové účty a všechny investiční produkty.
+3. Identifikuj všechny investice a jejich aktuální zůstatky.
+4. Pokud jsou hodnoty v různých měnách (CZK, EUR, USD), ber v úvahu měnovou strukturu. Pokud není kurz uveden, upozorni na omezení.
+5. Agreguj celé portfolio do jednoho celku (neanalyzuj jednotlivé účty izolovaně).
+6. Rozděl portfolio do hlavních tříd aktiv:
+   - Akcie  
+   - Dluhopisy  
+   - Alternativní investice (např. reality, komodity, krypto, strukturované produkty)  
+   - Hotovost / peněžní fondy  
+7. Odhadni přibližné zastoupení těchto tříd v portfoliu.
+8. Pokud něco nelze přesně určit, uveď kvalifikovaný odhad a vysvětli proč.
+
+Doplňková analýza:
+- Zohledni měnové rozložení portfolia (CZK, EUR, USD apod.).
+- Upozorni na případné měnové riziko.
+- Identifikuj koncentrace:
+  - do jednotlivých titulů (např. Apple, Microsoft apod.),
+  - do sektorů (např. technologie, reality),
+  - do regionů.
+
+Požadovaný výstup:
+Vytvoř srozumitelné zhodnocení portfolia pro laika.  
+Piš jasně, jednoduše a bez zbytečného odborného žargonu.  
+Výstup strukturovaně rozděl do těchto částí:
+
+1. Stručné shrnutí portfolia  
+- co v portfoliu převládá  
+- jak portfolio působí jako celek  
+
+2. Co je na portfoliu silné  
+- 2 až 4 hlavní pozitivní stránky  
+- vždy krátce vysvětli proč  
+
+3. Na co si dát pozor  
+- hlavní rizika, koncentrace nebo nevyváženosti  
+- opět s jednoduchým vysvětlením  
+
+4. Diverzifikace portfolia  
+- zhodnoť, zda je portfolio dostatečně diverzifikované  
+- pokud ne, popiš konkrétně v čem  
+
+5. Klíčová doporučení se zdůvodněním  
+- navrhni 3 až 5 doporučení ke zlepšení  
+- u každého uveď stručné a srozumitelné zdůvodnění  
+
+6. Otázky na klienta  
+- navrhni 3 až 5 doplňujících otázek, které pomohou zpřesnit hodnocení  
+
+Důležité pokyny:
+- Nevydávej kategorické investiční doporučení typu „kupte“ nebo „prodejte“.  
+- Pokud v příloze chybí důležité informace (např. investiční horizont, cíle klienta), výslovně uveď co chybí a proč je to důležité.  
+- Pokud nelze něco spolehlivě určit, jasně to přiznej.  
+- Piš profesionálně, ale lidsky a srozumitelně.  
+- Výstup udělej přehledný, s nadpisy a odrážkami.  
+
+Závěr:
+Na konec přidej velmi stručné celkové hodnocení jednou větou ve stylu:
+„Celkově působí portfolio jako…, ale největší pozornost zaslouží…“</div>
+        <button class="copybtn">📋 Kopírovat prompt</button>
+        <p class="hint">Pak vlož do <b>AI bankéře</b> a přilož svůj Přehled produktů.</p>
+      </div></div>
+    </div>
+
+    <!-- KARTA 2 -->
+    <div class="card" data-id="2">
+      <div class="card-head">
+        <div class="num">2</div>
+        <div class="ttl">
+          <h2><span class="icon">📜</span>Analýza dluhopisu v emisi</h2>
+          <p>~150 stran odborného textu → jasná odpověď: „Mám si koupit, nebo ne?"</p>
+          <span class="time">⏱ ~18 min · Copilot Chat</span>
+        </div>
+        <div class="check" title="Označ jako hotové">✓</div>
+        <div class="chev">›</div>
+      </div>
+      <div class="card-body"><div class="body-inner">
+        <div class="context"><b>Kde:</b> Copilot Chat. <b>Co potřebuješ:</b> dokument s emisí dluhopisu (prospekt / emisní podmínky). Nahraj ho do Copilotu a pak vlož tento prompt.</div>
+        <div class="label">Prompt ke zkopírování</div>
+        <div class="promptbox">Jsi expert na korporátní dluhopisy bez ratingu emitované českými firmami přes ČS. Pomáháš retailovým investorům pochopit investiční příležitosti. Minimální investice 10.000 Kč.
+
+VÝSTUP - Struktura analýzy:
+
+1. ZÁKLADNÍ INFO
+Emitent, činnost, objem emise, úrok, splatnost, ISIN, min. investice
+
+2. PROFIL EMITENTA
+Hlavní činnost (laicky), působení na trhu, obrat/zisk, majitelé, pozice na trhu
+
+3. HISTORIE &amp; DŮVĚRYHODNOST
+- Emitoval dříve? Splácí řádně?
+- Platební morálka
+- ✅ Pozitivní / ⚠️ První emise / 🔴 Problémy v minulosti
+
+4. FINANČNÍ ZDRAVÍ
+Zadluženost (% aktiv), ziskovost, likvidita, trend, červené vlajky
+
+5. PODMÍNKY DLUHOPISU
+Úrok (%, frekvence), zajištění (čím?), předčasné splacení, kovenanty
+
+6. POUŽITÍ PENĚZ
+- Účel: refinancování/expanze/investice/provoz?
+- Hodnocení: ✅ Produktivní / 🟡 Refinancování / 🔴 Záplata děr
+- Posílí to firmu dlouhodobě?
+
+7. RIZIKA
+VYSOKÁ: nestabilita, vysoký dluh, ztráty, koncentrace zákazníků
+STŘEDNÍ: bez ratingu, nízká likvidita
+NÍZKÁ: stabilita, zajištění, dobrá kondice
+⚠️ "Nemá rating. Investuj jen peníze, které můžeš ztratit."
+
+8. SCÉNÁŘE "CO KDYŽ"
+📈 OPTIMISTICKÝ: [co se stane] → [dopad] → [pro investora]
+📊 REALISTICKÝ: [nejpravděpodobnější] → výnos X% p.a.
+📉 PESIMISTICKÝ: [riziko] → možná ztráta Y%
+🎯 PRAVDĚPODOBNÝ VÝSLEDEK: [který scénář + klíčové faktory]
+
+9. VÝNOS
+Nominální X% → po zdanění (15%) Y%
+Srovnání: spořák/státní dluhopis/depozitum
+Na 10k získáte za X let: Z Kč
+
+10. PRO KOHO
+✅ VHODNÉ: zkušení, diverzifikováno portfolio, peníze na X let
+❌ NEVHODNÉ: začátečníci, potřeba rychlého výběru, hledající jistotu
+
+11. JAK INVESTOVAT
+KDE: ČS pobočka/George
+POSTUP: investiční účet → najdi emisi → zadej kusy → potvrď
+NÁKLADY: poplatek X%, správa Y Kč/rok
+TERMÍNY: upisování DD.MM-DD.MM, emise DD.MM, splatnost DD.MM
+DOKUMENTY: OP, investiční účet
+FAQ: Min 10k, prodej [ano/ne], první úrok za X měsíců, daň 15% automaticky
+
+12. CHECKLIST ☐
+PŘEČETL: prospekt, podmínky, výkazy, analýzu
+ROZUMÍM: čím firma žije, kam jdou peníze, mohu ztratit vše, zmrazení na X let
+RIZIKA: bez ratingu, možný default, nelze prodat, ztráta až X%
+PRAKTICKY: účet ready, peníze připraveny, znám termíny
+🚨 STOP pokud: ztráty/vysoký dluh/nejasnosti/tlak/nerozumím byznysu
+
+13. DOPORUČENÍ
+Riziko: 🔴 Vysoké / 🟡 Střední / 🟢 Nižší
+3 body: [pozitivum] [riziko] [klíčový faktor]
+VERDICT: [jasné doporučení]
+
+PRAVIDLA:
+- Česky, bez žargonu
+- Vysvětluj termíny laicky
+- Konkrétní čísla (ne "vysoký", ale "80% aktiv")
+- Upřímně o rizicích
+- Ikony: ⚠️💰✅❌📊🔴🟡🟢
+- Chybí-li info: ⚠️ jasně označ + vysvětli proč je to problém
+
+Začni: "Analýza korporátního dluhopisu [emitent]..."</div>
+        <button class="copybtn">📋 Kopírovat prompt</button>
+        <p class="hint">Nahraj do <b>Copilot Chat</b> nejdřív dokument emise, pak vlož tento prompt.</p>
+      </div></div>
+    </div>
+
+    <!-- KARTA 3 -->
+    <div class="card" data-id="3">
+      <div class="card-head">
+        <div class="num">3</div>
+        <div class="ttl">
+          <h2><span class="icon">📈</span>Technická analýza akcie</h2>
+          <p>Máš vybranou akcii a graf → „Za kolik si ji mám koupit?"</p>
+          <span class="time">⏱ ~18 min · Copilot Chat</span>
+        </div>
+        <div class="check" title="Označ jako hotové">✓</div>
+        <div class="chev">›</div>
+      </div>
+      <div class="card-body"><div class="body-inner">
+        <div class="context"><b>Kde:</b> Copilot Chat. <b>Co potřebuješ:</b> screenshot grafu vybrané akcie (denní/týdenní). Vlož obrázek grafu + tento prompt.</div>
+        <div class="label">Prompt ke zkopírování</div>
+        <div class="promptbox">ROLE
+Jsi expertní analytik kapitálových trhů se specializací na technickou analýzu. Tvým úkolem je analyzovat cenné papíry (akcie, ETF, certifikáty) pro středně pokročilé investory, kteří budují dlouhodobé pozice (10+ let).
+
+KONTEXT INVESTORA
+Investiční horizont: 10+ let
+Strategie: Nákup do dlouhých pozic (buy &amp; hold)
+Zkušenost: Středně pokročilá (rozumí základním pojmům, potřebuje expertní názor)
+Potřeba: Optimální vstupní cena a scénáře vývoje
+
+ANALYTICKÉ NÁSTROJE
+Při analýze vždy použij:
+
+Svíčkové formace
+- Identifikuj klíčové formace (doji, engulfing, hammer, shooting star, atd.)
+- Vyhodnoť trendy a reversal signály
+- Označ support a resistance zóny
+
+Ichimoku Cloud
+- Poloha ceny vůči cloudu (nad/v/pod)
+- Tenkan-sen a Kijun-sen křížení
+- Budoucí cloud (bullish/bearish)
+- Chikou span potvrzení
+
+RSI (Relative Strength Index)
+- Aktuální hodnota (0-100)
+- Překoupení (&gt;70) / Přeprodání (&lt;30)
+- Divergence s cenou
+- Trendové linie na RSI
+
+VÝSTUPNÍ FORMÁT
+📊 Technická Analýza: [NÁZEV CENNÉHO PAPÍRU]
+Analyzovaný graf: [timeframe - např. denní/týdenní]
+
+🎯 Aktuální Situace
+Cena: [současná cena]
+Trend: [krátkodobý/střednědobý/dlouhodobý]
+Momentum: [silné/střední/slabé, směr]
+
+📈 Detailní Analýza
+Svíčkové formace: [popis formací a jejich význam]
+Support: [úrovně]
+Resistance: [úrovně]
+Ichimoku Cloud: pozice [nad/v/pod], signály křížení, cloud outlook [bullish/bearish]
+RSI: hodnota [číslo], stav [neutrální/překoupeno/přeprodáno], signály [divergence, trendy]
+
+💡 Interpretace pro Laika
+[Vysvětli situaci jednoduchými slovy - co se děje a proč]
+
+🎲 Scénáře Nákupu
+Scénář 1: Agresivní vstup ⚡ — vstupní cena, pravděpodobnost %, podmínky, riziko
+Scénář 2: Vyvážený vstup ⚖️ — vstupní cena, pravděpodobnost %, podmínky, riziko
+Scénář 3: Konzervativní vstup 🛡️ — vstupní cena, pravděpodobnost %, podmínky, riziko
+
+📋 Doporučení pro Dlouhodobého Investora
+Optimální strategie: [konkrétní doporučení s odůvodněním]
+Dollar-Cost Averaging plán: nákup [cena] - [% kapitálu] (3 úrovně)
+Stop-loss pro risk management: [cena/úroveň]
+
+⚠️ Rizika a Opatrnost
+[seznam rizik a na co dát pozor]
+
+📅 Monitoring
+Bullish trigger: [cena]
+Bearish warning: [cena]
+Re-evaluace: [při překonání které úrovně]
+
+Poznámka: Tato analýza je založena na technických indikátorech. Před investicí proveď také fundamentální analýzu a zohledni své investiční cíle a rizikový profil.</div>
+        <button class="copybtn">📋 Kopírovat prompt</button>
+        <p class="hint">Vlož do <b>Copilot Chat</b> screenshot grafu akcie + tento prompt.</p>
+      </div></div>
+    </div>
+
+    <!-- KARTA 4 -->
+    <div class="card" data-id="4">
+      <div class="card-head">
+        <div class="num">4</div>
+        <div class="ttl">
+          <h2><span class="icon">🎙️</span>Podcast na míru</h2>
+          <p>Vygeneruj si vlastní audio podcast o tvých investicích z NotebookLM.</p>
+          <span class="time">⏱ ~14 min · NotebookLM</span>
+        </div>
+        <div class="check" title="Označ jako hotové">✓</div>
+        <div class="chev">›</div>
+      </div>
+      <div class="card-body"><div class="body-inner">
+        <div class="context"><b>Kde:</b> NotebookLM. <b>Jak na to:</b> Jarda ukáže živě na svém NotebookLM. Nahraj své zdroje (analýzy z kroků 1–3, dokumenty) → funkce <b>Audio Overview</b> → vygeneruje se mluvený podcast o tvém portfoliu.</div>
+        <div class="label">Postup živě s Jardou</div>
+        <div class="promptbox">1) Otevři NotebookLM (notebooklm.google.com)
+2) Vytvoř nový notebook
+3) Nahraj zdroje: výstupy z kroků 1–3, přehled portfolia, analýzy emisí
+4) Klikni na "Audio Overview" / "Generovat"
+5) (Volitelně) Uprav zaměření: "Zaměř se na rizika mého portfolia a co s nimi"
+6) Poslechni si podcast o svých vlastních investicích 🎧</div>
+        <p class="hint">Tohle je <b>živá ukázka</b> — sleduj Jardu a zkus to potom sám.</p>
+      </div></div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p class="warn">⚠️ Vzdělávací workshop. Není investiční doporučení.</p>
+    <p>Výstupy AI vždy ověř. Investice nesou riziko ztráty.</p>
+    <p class="sig">/// Investiční AI punk · Jarda ///</p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
+  var barfill = document.getElementById('barfill');
+  var pcount = document.getElementById('pcount');
+
+  function updateProgress(){
+    var done = document.querySelectorAll('.card.done').length;
+    pcount.textContent = done;
+    barfill.style.width = (done/4*100) + '%';
+  }
+
+  cards.forEach(function(card){
+    var head = card.querySelector('.card-head');
+    var check = card.querySelector('.check');
+    var btn = card.querySelector('.copybtn');
+    var box = card.querySelector('.promptbox');
+
+    // rozbalení / sbalení (klik na hlavičku, mimo checkbox)
+    head.addEventListener('click', function(e){
+      if(e.target.closest('.check')) return;
+      card.classList.toggle('open');
+    });
+
+    // odškrtnutí hotovo
+    check.addEventListener('click', function(e){
+      e.stopPropagation();
+      card.classList.toggle('done');
+      updateProgress();
+    });
+
+    // kopírování
+    if(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var text = box.textContent;
+        var done = function(){
+          btn.classList.add('copied');
+          btn.textContent = '✓ Zkopírováno!';
+          card.classList.add('done');
+          updateProgress();
+          setTimeout(function(){
+            btn.classList.remove('copied');
+            btn.textContent = '📋 Kopírovat prompt';
+          }, 2200);
+        };
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(text).then(done).catch(function(){ fallback(text, done); });
+        } else {
+          fallback(text, done);
+        }
+      });
+    }
+  });
+
+  function fallback(text, cb){
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position='fixed'; ta.style.top='-9999px';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    try{ document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta);
+    cb();
+  }
+
+  // první karta otevřená na startu
+  if(cards[0]) cards[0].classList.add('open');
+  updateProgress();
+})();
+</script>
+</body>
+</html>
